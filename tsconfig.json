@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "removeComments": true,
+    "importHelpers": true,
+    "target": "es6",
+    "module": "commonjs",
+    "rootDir": "./",
+    "outDir": "./build",
+    "esModuleInterop": true,
+    "strict": true
+  }
+}

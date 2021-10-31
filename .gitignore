@@ -1,0 +1,5 @@
+.DS_Store
+node_modules
+database/postgresql/data/*
+!database/postgresql/data/.gitkeep
+build

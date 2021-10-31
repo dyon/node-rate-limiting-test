@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+
+  redis:
+    image: redis:alpine
+    container_name: nrl-redis
+    ports:
+      - 6379:6379
+
+  db:
+    image: postgres:alpine
+    container_name: nrl-postgres
+    restart: always
+    volumes:
+      - ./database/postgresql/data:/var/lib/postgresql/data:delegated
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: testtest
+      POSTGRES_DB: nrl
+
+  express:
+    build:
+      context: ./
+      target: dev
+    volumes:
+      - .:/src
+    command: npm run start:dev
+    ports:
+      - 3000:3000
+    environment:
+      NODE_ENV: development
+      DEBUG: node-rate-limiting-test:*
