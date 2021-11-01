@@ -28,6 +28,11 @@ jest.mock('redis', () => {
 
       return store[key].value;
     },
+    del: (key: string) => {
+      delete store[key];
+
+      return true;
+    },
   });
 
   return { createClient };
@@ -89,5 +94,22 @@ describe('Redis store', () => {
 
     expect(firstUserMaximumReached).toBe(true);
     expect(secondUserMaximumReached).toBe(false);
+  });
+
+  it('clears the store entry when the decay time has passed', async () => {
+    const maxAttempts = 1;
+
+    await hit(firstUserIdentifier);
+
+    let maximumReached = await tooManyAttempts(firstUserIdentifier, maxAttempts);
+
+    expect(maximumReached).toBe(true);
+
+    // Simulate Redis' entry auto-expire
+    delete store[`${firstUserIdentifier}:timer`];
+
+    maximumReached = await tooManyAttempts(firstUserIdentifier, maxAttempts);
+
+    expect(maximumReached).toBe(false);
   });
 });

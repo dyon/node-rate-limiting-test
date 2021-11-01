@@ -32,10 +32,14 @@ export const tooManyAttempts = async (key: string, maxAttempts: number) => {
       return true;
     }
 
-    // resetAttempts(key);
+    resetAttempts(key);
   }
 
   return false;
+};
+
+export const resetAttempts = async (key: string) => {
+  return Boolean(client.del(key));
 };
 
 const availableAt = (seconds: number): number => {
