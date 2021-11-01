@@ -1,4 +1,4 @@
-import { hit, attempts } from './redis-store';
+import { hit, attempts, has } from './redis-store';
 
 // Create a manual Redis mock because the `redis-mock` package hasn't been
 // updated to support the new Promises functionality added to `redis@next`
@@ -52,5 +52,16 @@ describe('Redis store', () => {
     const value = await attempts('user-1');
 
     expect(value).toBe(2);
+  });
+
+  it('checks if a key exists', async () => {
+    // Create an entry for `user-1`
+    await hit('user-1');
+
+    const exists = await has('user-1');
+    const doesNotExist = await has('user-2');
+
+    expect(exists).toBe(true);
+    expect(doesNotExist).toBe(false);
   });
 });

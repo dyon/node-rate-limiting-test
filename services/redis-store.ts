@@ -22,6 +22,10 @@ export const attempts = async (key: string) => {
   return client.get(key);
 };
 
+export const has = async (key: string) => {
+  return client.exists(key);
+};
+
 const availableAt = (seconds: number): number => {
   return dayjs().add(seconds, 'seconds').unix();
 };
