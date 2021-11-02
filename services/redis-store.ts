@@ -9,7 +9,7 @@ client.on('error', (error) => {
 });
 
 export const hit = async (key: string, decaySeconds: number = 60) => {
-  client.setEx(`${key}:timer`, decaySeconds, String(availableAt(decaySeconds)));
+  client.setEx(`${key}:timer`, decaySeconds, String(addSecondsToCurrentDate(decaySeconds)));
 
   if (!await has(key)) {
     client.setEx(key, decaySeconds, '0');
@@ -42,7 +42,11 @@ export const resetAttempts = async (key: string) => {
   return Boolean(client.del(key));
 };
 
-const availableAt = (seconds: number): number => {
+export const availableAt = async (key: string) => {
+  return Number(client.get(`${key}:timer`));
+};
+
+const addSecondsToCurrentDate = (seconds: number): number => {
   return dayjs().add(seconds, 'seconds').unix();
 };
 
@@ -50,4 +54,5 @@ export default {
   hit,
   attempts,
   has,
+  availableAt,
 };

@@ -1,4 +1,5 @@
-import { hit, attempts, has, tooManyAttempts } from './redis-store';
+import dayjs from 'dayjs';
+import { hit, attempts, has, tooManyAttempts, availableAt } from './redis-store';
 
 // Create a manual Redis mock because the `redis-mock` package hasn't been
 // updated to support the new Promises functionality added to `redis@next`
@@ -111,5 +112,15 @@ describe('Redis store', () => {
     maximumReached = await tooManyAttempts(firstUserIdentifier, maxAttempts);
 
     expect(maximumReached).toBe(false);
+  });
+
+  it('keeps track of when the key will be available', async () => {
+    const decay = 30;
+
+    await hit(firstUserIdentifier, decay);
+
+    const time = await availableAt(firstUserIdentifier);
+
+    expect(time).toBe(dayjs().add(decay, 'seconds').unix());
   });
 });
