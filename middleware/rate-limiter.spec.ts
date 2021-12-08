@@ -17,7 +17,9 @@ describe('Rate limiter middleware', () => {
       'x-forwarded-for': ip,
     } as any,
   } as Request);
-  const response = {} as Response;
+  const response = {
+    set: jest.fn() as any,
+  } as Response;
   const next = jest.fn();
 
   it('adds a hit when the middleware gets called', async () => {
@@ -27,16 +29,23 @@ describe('Rate limiter middleware', () => {
     expect(next).toHaveBeenCalledWith();
   });
 
-  it('sets an error when a user has exceeded the rate limit', async () => {
+  it('sets an error and headers when a user has exceeded the rate limit', async () => {
+    const availableAt = 2000000000;
+
     mockedRedisStore.attempts.mockResolvedValue(101);
-    mockedRedisStore.availableAt.mockResolvedValue(2000000000);
+    mockedRedisStore.availableAt.mockResolvedValue(availableAt);
 
     await rateLimiterMiddleware(requestForIp(), response, next);
 
+    expect(response.set).toHaveBeenCalledWith({
+      'X-RateLimit-Limit': 100,
+      'X-RateLimit-Remaining': 0,
+      'X-RateLimit-Reset': availableAt,
+    });
     expect(next).toHaveBeenCalledWith({
       code: ERROR_CODE,
       attempts: 101,
-      availableAt: 2000000000,
+      availableAt: availableAt,
     });
   });
 });
